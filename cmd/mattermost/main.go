@@ -9,7 +9,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/cmd/mattermost/commands"
 
 	// Plugins
-	_ "github.com/mattermost/mattermost-server/v5/model/gitlab"
+	_ "github.com/mattermost/mattermost-server/model/gitlab"
+	_ "github.com/mattermost/mattermost-server/model/gitcoin"
 
 	// Enterprise Imports
 	_ "github.com/mattermost/mattermost-server/v5/imports"
