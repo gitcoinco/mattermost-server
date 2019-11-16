@@ -3126,8 +3126,8 @@ func (o *Config) Sanitize() {
 		*o.EmailSettings.SMTPPassword = FAKE_SETTING
 	}
 
-	if len(*o.GitLabSettings.Secret) > 0 {
-		*o.GitLabSettings.Secret = FAKE_SETTING
+	if len(*o.GitCoinSettings.Secret) > 0 {
+		*o.GitCoinSettings.Secret = FAKE_SETTING
 	}
 
 	*o.SqlSettings.DataSource = FAKE_SETTING
