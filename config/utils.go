@@ -28,8 +28,8 @@ func desanitize(actual, target *model.Config) {
 		target.EmailSettings.SMTPPassword = actual.EmailSettings.SMTPPassword
 	}
 
-	if *target.GitLabSettings.Secret == model.FAKE_SETTING {
-		target.GitLabSettings.Secret = actual.GitLabSettings.Secret
+	if *target.GitCoinSettings.Secret == model.FAKE_SETTING {
+		target.GitCoinSettings.Secret = actual.GitCoinSettings.Secret
 	}
 
 	if *target.SqlSettings.DataSource == model.FAKE_SETTING {

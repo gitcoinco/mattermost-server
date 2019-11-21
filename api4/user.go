@@ -315,13 +315,30 @@ func getDefaultProfileImage(c *Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	img, err := c.App.GetDefaultProfileImage(user)
+	//img, err := c.App.GetDefaultProfileImage(user)
+	//if err != nil {
+	//	c.Err = err
+	//	return
+	//}
+
+	etag := strconv.FormatInt(user.LastPictureUpdate, 10)
+	if c.HandleEtag(etag, "Get Profile Image", w, r) {
+		return
+	}
+
+	img, readFailed, err := c.App.GetProfileImage(user)
 	if err != nil {
 		c.Err = err
 		return
 	}
 
-	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v, public", 24*60*60)) // 24 hrs
+	if readFailed {
+		w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v, public", 5*60)) // 5 mins
+	} else {
+		w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v, public", 24*60*60)) // 24 hrs
+		w.Header().Set(model.HEADER_ETAG_SERVER, etag)
+	}
+
 	w.Header().Set("Content-Type", "image/png")
 	w.Write(img)
 }
