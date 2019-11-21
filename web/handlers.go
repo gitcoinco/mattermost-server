@@ -106,7 +106,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Access-Control-Allow-Origin", "*")
 		//// Set content security policy. This is also specified in the root.html of the webapp in a meta tag.
 		w.Header().Set("Content-Security-Policy", fmt.Sprintf(
-			"frame-ancestors 'self' https://dapp.ngrok.io; script-src 'self' cdn.segment.com/analytics.js/%s",
+			"frame-ancestors 'self' https://gitcoin.co https://www.gitcoin.co; script-src 'self'%s",
 			h.cspShaDirective,
 		))
 	} else {
