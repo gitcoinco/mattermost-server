@@ -785,22 +785,33 @@ func (a *App) GetProfileImage(user *model.User) ([]byte, bool, *model.AppError) 
 		}
 		return img, false, nil
 	}
+	//
+	//path := "users/" + user.Id + "/profile.png"
+	//
+	//data, err := a.ReadFile(path)
+	//if err != nil {
+	//	img, appErr := a.GetDefaultProfileImage(user)
+	//	if appErr != nil {
+	//		return nil, false, appErr
+	//	}
+	//
+	//	if user.LastPictureUpdate == 0 {
+	//		if _, err := a.WriteFile(bytes.NewReader(img), path); err != nil {
+	//			return nil, false, err
+	//		}
+	//	}
+	//	return img, true, nil
+	//}
 
-	path := "users/" + user.Id + "/profile.png"
-
-	data, err := a.ReadFile(path)
-	if err != nil {
-		img, appErr := a.GetDefaultProfileImage(user)
-		if appErr != nil {
-			return nil, false, appErr
-		}
-
-		if user.LastPictureUpdate == 0 {
-			if _, err := a.WriteFile(bytes.NewReader(img), path); err != nil {
-				return nil, false, err
-			}
-		}
-		return img, true, nil
+	resp, e := http.Get("https://gitcoin.co/dynamic/avatar/" + user.Username)
+	if e != nil {
+		//issue getting the image
+	}
+	defer resp.Body.Close()
+	data, readErr := ioutil.ReadAll(resp.Body)
+	if readErr != nil {
+		//issue reading the body
+		return data, true, nil
 	}
 
 	return data, false, nil
