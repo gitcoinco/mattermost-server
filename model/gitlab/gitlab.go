@@ -25,8 +25,8 @@ type GitLabUser struct {
 }
 
 func init() {
-	provider := &GitLabProvider{}
-	einterfaces.RegisterOauthProvider(model.USER_AUTH_SERVICE_GITLAB, provider)
+	//provider := &GitLabProvider{}
+	//einterfaces.RegisterOauthProvider(model.USER_AUTH_SERVICE_GITLAB, provider)
 }
 
 func userFromGitLabUser(glu *GitLabUser) *model.User {

@@ -660,14 +660,14 @@ func (a *App) GetAuthorizationCode(w http.ResponseWriter, r *http.Request, servi
 
 	redirectUri := siteUrl + "/signup/" + service + "/complete"
 
-	authUrl := endpoint + "?response_type=code&client_id=" + clientId + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&state=" + url.QueryEscape(state)
+	authUrl := endpoint + url.QueryEscape("/o/authorize?response_type=code&client_id=" + clientId + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&state=" + url.QueryEscape(state))
 
 	if len(scope) > 0 {
-		authUrl += "&scope=" + utils.UrlEncode(scope)
+		authUrl += url.QueryEscape("&scope=" + utils.UrlEncode(scope))
 	}
 
 	if len(loginHint) > 0 {
-		authUrl += "&login_hint=" + utils.UrlEncode(loginHint)
+		authUrl += url.QueryEscape("&login_hint=" + utils.UrlEncode(loginHint))
 	}
 
 	return authUrl, nil
@@ -788,10 +788,10 @@ func (a *App) AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service
 
 		mlog.Error("Error getting OAuth user", mlog.String("body_string", bodyString))
 
-		if service == model.SERVICE_GITLAB && resp.StatusCode == http.StatusForbidden && strings.Contains(bodyString, "Terms of Service") {
-			// Return a nicer error when the user hasn't accepted GitLab's terms of service
-			return nil, "", stateProps, model.NewAppError("AuthorizeOAuthUser", "oauth.gitlab.tos.error", nil, "", http.StatusBadRequest)
-		}
+		//if service == model.SERVICE_GITLAB && resp.StatusCode == http.StatusForbidden && strings.Contains(bodyString, "Terms of Service") {
+		//	// Return a nicer error when the user hasn't accepted GitLab's terms of service
+		//	return nil, "", stateProps, model.NewAppError("AuthorizeOAuthUser", "oauth.gitlab.tos.error", nil, "", http.StatusBadRequest)
+		//}
 
 		return nil, "", stateProps, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.response.app_error", nil, "response_body="+bodyString, http.StatusInternalServerError)
 	}

@@ -4,8 +4,10 @@
 package api4
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	oauthgitcoin "github.com/mattermost/mattermost-server/model/gitcoin"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -86,11 +88,13 @@ func createUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
 	user.SanitizeInput(c.IsSystemAdmin())
+	isGitcoin := user.AuthService == "gitcoin"
 
 	tokenId := r.URL.Query().Get("t")
 	inviteId := r.URL.Query().Get("iid")
-
+	teamId := r.URL.Query().Get("tid")
 	// No permission check required
 
 	var ruser *model.User
@@ -116,6 +120,17 @@ func createUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		ruser, err = c.App.CreateUserWithToken(user, token)
 	} else if len(inviteId) > 0 {
 		ruser, err = c.App.CreateUserWithInviteId(user, inviteId)
+	} else if isGitcoin {
+		gitcoinUserId := user.AuthData
+		gitcoinUser := oauthgitcoin.GitCoinUser{Id: *gitcoinUserId, Username: user.Username, Login: user.Username, Email: user.Email, Name: user.GetFullName()}
+
+		var payload []byte
+		var err error
+		payload, err = json.Marshal(gitcoinUser)
+		if err != nil {
+
+		}
+		ruser, err = c.App.CreateOAuthUser("gitcoin", bytes.NewReader(payload), teamId)
 	} else if c.IsSystemAdmin() {
 		ruser, err = c.App.CreateUserAsAdmin(user)
 	} else {

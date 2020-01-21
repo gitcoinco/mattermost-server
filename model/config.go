@@ -2502,6 +2502,7 @@ func (o *Config) ToJson() string {
 }
 
 func (o *Config) GetSSOService(service string) *SSOSettings {
+
 	switch service {
 	case SERVICE_GITLAB:
 		return &o.GitLabSettings

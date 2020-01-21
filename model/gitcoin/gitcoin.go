@@ -6,7 +6,6 @@ package oauthgitcoin
 import (
 	"encoding/json"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/einterfaces"
@@ -17,11 +16,13 @@ type GitCoinProvider struct {
 }
 
 type GitCoinUser struct {
-	Id       int64  `json:"id"`
-	Username string `json:"handle"`
-	Login    string `json:"login"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
+	Id          string          `json:"id"`
+	Username    string          `json:"handle"`
+	Login       string          `json:"login"`
+	Email       string          `json:"email"`
+	Name        string          `json:"name"`
+	AuthService string          `json:"auth_service,omitempty"`
+	AuthData    *string         `json:"auth_data,omitempty"`
 }
 
 func init() {
@@ -75,7 +76,7 @@ func (ghu *GitCoinUser) ToJson() string {
 }
 
 func (ghu *GitCoinUser) IsValid() bool {
-	if ghu.Id == 0 {
+	if len(ghu.Id) == 0 {
 		return false
 	}
 
@@ -87,7 +88,7 @@ func (ghu *GitCoinUser) IsValid() bool {
 }
 
 func (ghu *GitCoinUser) getAuthData() string {
-	return strconv.FormatInt(ghu.Id, 10)
+	return ghu.Id
 }
 
 func (m *GitCoinProvider) GetUserFromJson(data io.Reader) *model.User {

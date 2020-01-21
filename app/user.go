@@ -147,9 +147,9 @@ func (a *App) CreateUserAsAdmin(user *model.User) (*model.User, *model.AppError)
 		return nil, err
 	}
 
-	if err := a.SendWelcomeEmail(ruser.Id, ruser.Email, ruser.EmailVerified, ruser.Locale, a.GetSiteURL()); err != nil {
-		mlog.Error("Failed to send welcome email on create admin user", mlog.Err(err))
-	}
+	//if err := a.SendWelcomeEmail(ruser.Id, ruser.Email, ruser.EmailVerified, ruser.Locale, a.GetSiteURL()); err != nil {
+	//	mlog.Error("Failed to send welcome email on create admin user", mlog.Err(err))
+	//}
 
 	return ruser, nil
 }
@@ -171,9 +171,9 @@ func (a *App) CreateUserFromSignup(user *model.User) (*model.User, *model.AppErr
 		return nil, err
 	}
 
-	if err := a.SendWelcomeEmail(ruser.Id, ruser.Email, ruser.EmailVerified, ruser.Locale, a.GetSiteURL()); err != nil {
-		mlog.Error("Failed to send welcome email on create user from signup", mlog.Err(err))
-	}
+	//if err := a.SendWelcomeEmail(ruser.Id, ruser.Email, ruser.EmailVerified, ruser.Locale, a.GetSiteURL()); err != nil {
+	//	mlog.Error("Failed to send welcome email on create user from signup", mlog.Err(err))
+	//}
 
 	return ruser, nil
 }
