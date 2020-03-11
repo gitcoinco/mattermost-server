@@ -4,7 +4,7 @@ FROM alpine:3.10
 ENV PATH="/mattermost/bin:${PATH}"
 ARG PUID=2000
 ARG PGID=2000
-ARG MM_PACKAGE="https://releases.mattermost.com/5.14.0/mattermost-5.14.0-linux-amd64.tar.gz"
+ARG MM_PACKAGE="/mattermost-team-linux-amd64.tar.gz"
 
 
 # Install some needed packages
@@ -20,9 +20,10 @@ RUN apk add --no-cache \
   tzdata \
   && rm -rf /tmp/*
 
+COPY mattermost-team-linux-amd64.tar.gz /
 # Get Mattermost
 RUN mkdir -p /mattermost/data /mattermost/plugins /mattermost/client/plugins \
-  && if [ ! -z "$MM_PACKAGE" ]; then curl $MM_PACKAGE | tar -xvz ; \
+  && if [ ! -z "$MM_PACKAGE" ]; then tar -xvzf $MM_PACKAGE ; \
   else echo "please set the MM_PACKAGE" ; fi \
   && addgroup -g ${PGID} mattermost \
   && adduser -D -u ${PUID} -G mattermost -h /mattermost -D mattermost \

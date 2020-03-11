@@ -34,7 +34,7 @@ package:
 	@# Resource directories
 	mkdir -p $(DIST_PATH)/config
 	cp -L config/README.md $(DIST_PATH)/config
-	OUTPUT_CONFIG=$(PWD)/$(DIST_PATH)/config/config.json go generate ./config
+	cp ./config/config.json $(PWD)/$(DIST_PATH)/config/config.json
 	cp -RL fonts $(DIST_PATH)
 	cp -RL templates $(DIST_PATH)
 	cp -RL i18n $(DIST_PATH)

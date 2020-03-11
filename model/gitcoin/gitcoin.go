@@ -8,21 +8,21 @@ import (
 	"io"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/einterfaces"
-	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/v5/einterfaces"
+	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 type GitCoinProvider struct {
 }
 
 type GitCoinUser struct {
-	Id          string          `json:"id"`
-	Username    string          `json:"handle"`
-	Login       string          `json:"login"`
-	Email       string          `json:"email"`
-	Name        string          `json:"name"`
-	AuthService string          `json:"auth_service,omitempty"`
-	AuthData    *string         `json:"auth_data,omitempty"`
+	Id          string  `json:"id"`
+	Username    string  `json:"handle"`
+	Login       string  `json:"login"`
+	Email       string  `json:"email"`
+	Name        string  `json:"name"`
+	AuthService string  `json:"auth_service,omitempty"`
+	AuthData    *string `json:"auth_data,omitempty"`
 }
 
 func init() {

@@ -955,7 +955,7 @@ func TestDefaultChannelNames(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	actual := th.App.DefaultChannelNames()
+	actual := th.App.DefaultChannelNames("")
 	expect := []string{"town-square", "off-topic"}
 	require.ElementsMatch(t, expect, actual)
 
@@ -963,7 +963,7 @@ func TestDefaultChannelNames(t *testing.T) {
 		cfg.TeamSettings.ExperimentalDefaultChannels = []string{"foo", "bar"}
 	})
 
-	actual = th.App.DefaultChannelNames()
+	actual = th.App.DefaultChannelNames("")
 	expect = []string{"town-square", "foo", "bar"}
 	require.ElementsMatch(t, expect, actual)
 }

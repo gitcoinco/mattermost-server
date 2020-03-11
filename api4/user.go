@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	oauthgitcoin "github.com/mattermost/mattermost-server/model/gitcoin"
+	oauthgitcoin "github.com/mattermost/mattermost-server/v5/model/gitcoin"
 	"io"
 	"io/ioutil"
 	"net/http"

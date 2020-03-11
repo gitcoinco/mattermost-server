@@ -119,7 +119,7 @@ func GenerateClientConfig(c *model.Config, diagnosticId string, license *model.L
 	props["BannerTextColor"] = ""
 	props["AllowBannerDismissal"] = "false"
 	props["EnableThemeSelection"] = "true"
-	props["DefaultTheme"] = ""
+	props["DefaultTheme"] = "Gitcoin"
 	props["AllowCustomThemes"] = "true"
 	props["AllowedThemes"] = ""
 	props["DataRetentionEnableMessageDeletion"] = "false"

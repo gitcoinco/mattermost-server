@@ -468,6 +468,30 @@ func (_m *ChannelStore) GetByNames(team_id string, names []string, allowFromCach
 
 	return r0, r1
 }
+// GetByNames provides a mock function with given fields: team_id, names, allowFromCache
+func (_m *ChannelStore) GetLikeNames(team_id string, names []string) ([]*model.Channel, *model.AppError) {
+	ret := _m.Called(team_id, names)
+
+	var r0 []*model.Channel
+	if rf, ok := ret.Get(0).(func(string, []string) []*model.Channel); ok {
+		r0 = rf(team_id, names)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*model.Channel)
+		}
+	}
+
+	var r1 *model.AppError
+	if rf, ok := ret.Get(1).(func(string, []string) *model.AppError); ok {
+		r1 = rf(team_id, names)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*model.AppError)
+		}
+	}
+
+	return r0, r1
+}
 
 // GetChannelCounts provides a mock function with given fields: teamId, userId
 func (_m *ChannelStore) GetChannelCounts(teamId string, userId string) (*model.ChannelCounts, *model.AppError) {

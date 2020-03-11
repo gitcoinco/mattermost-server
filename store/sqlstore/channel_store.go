@@ -290,6 +290,7 @@ var allChannelMembersForUserCache = utils.NewLru(ALL_CHANNEL_MEMBERS_FOR_USER_CA
 var allChannelMembersNotifyPropsForChannelCache = utils.NewLru(ALL_CHANNEL_MEMBERS_NOTIFY_PROPS_FOR_CHANNEL_CACHE_SIZE)
 var channelCache = utils.NewLru(model.CHANNEL_CACHE_SIZE)
 var channelByNameCache = utils.NewLru(model.CHANNEL_CACHE_SIZE)
+var channelLikeNameCache = utils.NewLru(model.CHANNEL_CACHE_SIZE)
 
 func (s SqlChannelStore) ClearCaches() {
 	channelMemberCountsCache.Purge()
@@ -299,6 +300,7 @@ func (s SqlChannelStore) ClearCaches() {
 	allChannelMembersNotifyPropsForChannelCache.Purge()
 	channelCache.Purge()
 	channelByNameCache.Purge()
+	channelLikeNameCache.Purge()
 
 	if s.metrics != nil {
 		s.metrics.IncrementMemCacheInvalidationCounter("Channel Member Counts - Purge")
@@ -1133,6 +1135,9 @@ func (s SqlChannelStore) GetTeamChannels(teamId string) (*model.ChannelList, *mo
 func (s SqlChannelStore) GetByName(teamId string, name string, allowFromCache bool) (*model.Channel, *model.AppError) {
 	return s.getByName(teamId, name, false, allowFromCache)
 }
+func (s SqlChannelStore) GetLikeNames(teamId string, names []string) ([]*model.Channel, *model.AppError) {
+	return s.GetAllLikeNames(teamId, names)
+}
 
 func (s SqlChannelStore) GetByNames(teamId string, names []string, allowFromCache bool) ([]*model.Channel, *model.AppError) {
 	var channels []*model.Channel
@@ -1183,6 +1188,37 @@ func (s SqlChannelStore) GetByNames(teamId string, names []string, allowFromCach
 		}
 		for _, channel := range dbChannels {
 			channelByNameCache.AddWithExpiresInSecs(teamId+channel.Name, channel, CHANNEL_CACHE_SEC)
+			channels = append(channels, channel)
+		}
+	}
+
+	return channels, nil
+}
+func (s SqlChannelStore) GetAllLikeNames(teamId string, names []string) ([]*model.Channel, *model.AppError) {
+	var channels []*model.Channel
+
+	if len(names) > 0 {
+		props := map[string]interface{}{}
+		var namePlaceholders []string
+		for _, name := range names {
+			key := fmt.Sprintf("Name%v", len(namePlaceholders))
+			props[key] = name
+			namePlaceholders = append(namePlaceholders, ":"+key)
+		}
+
+		var query string
+		if teamId == "" {
+			query = `SELECT * FROM Channels WHERE Name LIKE ` + strings.Join(namePlaceholders, " OR Name LIKE") + ` AND DeleteAt = 0`
+		} else {
+			props["TeamId"] = teamId
+			query = `SELECT * FROM Channels WHERE Name LIKE ` + strings.Join(namePlaceholders, " OR Name LIKE") + ` AND TeamId = :TeamId AND DeleteAt = 0`
+		}
+
+		var dbChannels []*model.Channel
+		if _, err := s.GetReplica().Select(&dbChannels, query, props); err != nil && err != sql.ErrNoRows {
+			return nil, model.NewAppError("SqlChannelStore.GetAllLikeNames", "store.sql_channel.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+err.Error(), http.StatusInternalServerError)
+		}
+		for _, channel := range dbChannels {
 			channels = append(channels, channel)
 		}
 	}

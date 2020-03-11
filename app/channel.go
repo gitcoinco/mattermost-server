@@ -24,7 +24,7 @@ func (a *App) CreateDefaultChannels(teamID string) ([]*model.Channel, *model.App
 		"off-topic":   utils.T("api.channel.create_default_channels.off_topic"),
 	}
 	channels := []*model.Channel{}
-	defaultChannelNames := a.DefaultChannelNames()
+	defaultChannelNames := a.DefaultChannelNames("") // leave null we dont want it to auto create custom team channels
 	for _, name := range defaultChannelNames {
 		displayName := utils.TDefault(displayNames[name], name)
 		channel := &model.Channel{DisplayName: displayName, Name: name, Type: model.CHANNEL_OPEN, TeamId: teamID}
@@ -44,17 +44,32 @@ func (a *App) CreateDefaultChannels(teamID string) ([]*model.Channel, *model.App
 // 'off-topic' and be included in the return results in addition to 'town-square'. For example:
 //	['town-square', 'game-of-thrones', 'wow']
 //
-func (a *App) DefaultChannelNames() []string {
+func (a *App) DefaultChannelNames(teamId string) []string {
 	names := []string{"town-square"}
 
-	if len(a.Config().TeamSettings.ExperimentalDefaultChannels) == 0 {
+	if len(a.Config().TeamSettings.ExperimentalDefaultChannels) == 0 || len(teamId) == 0 {
 		names = append(names, "off-topic")
 	} else {
+
+		var err *model.AppError
+		var team *model.Team
+		team, err = a.Srv.Store.Team().Get(teamId)
+		if err != nil {
+			return append(names, "off-topic")
+		}
+		if !strings.Contains(strings.ToLower(team.Name), "hackathon") {
+			return append(names, "off-topic")
+		}
+
 		seenChannels := map[string]bool{"town-square": true}
-		for _, channelName := range a.Config().TeamSettings.ExperimentalDefaultChannels {
-			if !seenChannels[channelName] {
-				names = append(names, channelName)
-				seenChannels[channelName] = true
+
+		channelNames, err := a.Srv.Store.Channel().GetLikeNames(teamId, a.Config().TeamSettings.ExperimentalDefaultChannels)
+		for _, channel := range channelNames {
+				var channelName = channel.Name
+				if channel.DeleteAt == 0 && !seenChannels[channelName] {
+					mlog.Info("channel found " + channel.Name)
+					names = append(names, channelName)
+					seenChannels[channelName] = true
 			}
 		}
 	}
@@ -73,7 +88,7 @@ func (a *App) JoinDefaultChannels(teamId string, user *model.User, shouldBeAdmin
 	}
 
 	var err *model.AppError
-	for _, channelName := range a.DefaultChannelNames() {
+	for _, channelName := range a.DefaultChannelNames(teamId) {
 		channel, channelErr := a.Srv.Store.Channel().GetByName(teamId, channelName, true)
 		if channelErr != nil {
 			err = channelErr
@@ -1247,7 +1262,7 @@ func (a *App) GetChannelsForUser(teamId string, userId string, includeDeleted bo
 
 func (a *App) GetAllChannels(page, perPage int, opts model.ChannelSearchOpts) (*model.ChannelListWithTeamData, *model.AppError) {
 	if opts.ExcludeDefaultChannels {
-		opts.ExcludeChannelNames = a.DefaultChannelNames()
+		opts.ExcludeChannelNames = a.DefaultChannelNames("")
 	}
 	storeOpts := store.ChannelSearchOpts{
 		ExcludeChannelNames:  opts.ExcludeChannelNames,
@@ -1259,7 +1274,7 @@ func (a *App) GetAllChannels(page, perPage int, opts model.ChannelSearchOpts) (*
 
 func (a *App) GetAllChannelsCount(opts model.ChannelSearchOpts) (int64, *model.AppError) {
 	if opts.ExcludeDefaultChannels {
-		opts.ExcludeChannelNames = a.DefaultChannelNames()
+		opts.ExcludeChannelNames = a.DefaultChannelNames("")
 	}
 	storeOpts := store.ChannelSearchOpts{
 		ExcludeChannelNames:  opts.ExcludeChannelNames,
@@ -1883,7 +1898,7 @@ func (a *App) AutocompleteChannelsForSearch(teamId string, userId string, term s
 func (a *App) SearchAllChannels(term string, opts model.ChannelSearchOpts) (*model.ChannelListWithTeamData, int64, *model.AppError) {
 	opts.IncludeDeleted = *a.Config().TeamSettings.ExperimentalViewArchivedChannels && opts.IncludeDeleted
 	if opts.ExcludeDefaultChannels {
-		opts.ExcludeChannelNames = a.DefaultChannelNames()
+		opts.ExcludeChannelNames = a.DefaultChannelNames("")
 	}
 	storeOpts := store.ChannelSearchOpts{
 		ExcludeChannelNames:  opts.ExcludeChannelNames,
